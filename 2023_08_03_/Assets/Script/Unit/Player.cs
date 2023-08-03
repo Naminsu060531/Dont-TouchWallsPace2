@@ -8,11 +8,12 @@ public class Player : Unit
     public static Player instance;
 
     public Rigidbody rigid;
-    bool isDrag;
+    public bool isDrag, isForce, isNoHit;
     public LayerMask playerLayer;
     public Vector3 dragStartPos;
     Camera cam;
     public Transform firePos;
+    public GameObject ForceObj;
 
     private void Awake()
     {
@@ -21,10 +22,16 @@ public class Player : Unit
         cam = Camera.main.GetComponent<Camera>();
     }
 
+    public void Start()
+    {
+        LevelSet();
+    }
+
     private void Update()
     {
         Move();
         DragAndMove();
+        UseForce();
     }
 
     void Move()
@@ -41,7 +48,7 @@ public class Player : Unit
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            bool isHit = Physics.Raycast(ray, out hit, 300f, playerLayer);
+            bool isHit = Physics.Raycast(ray, out hit, 120f, playerLayer);
 
             if (isHit)
             {
@@ -55,7 +62,7 @@ public class Player : Unit
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            bool isHit = Physics.Raycast(ray, out hit, 300f);
+            bool isHit = Physics.Raycast(ray, out hit, 120f);
 
             if (isHit)
             {
@@ -66,6 +73,15 @@ public class Player : Unit
         }
     }
 
+    void UseForce()
+    {
+        ForceObj.transform.position = transform.position;
+
+        if (Input.GetMouseButtonDown(1))
+            if(!isForce)
+                StartCoroutine(Force());
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == "BossForce")
@@ -73,11 +89,35 @@ public class Player : Unit
             Vector3 reactVec = transform.position - other.gameObject.transform.position;
             rigid.AddForce(reactVec * 3.75f, ForceMode.Impulse);
         }
+
+        if (other.tag == "Walls" && !isNoHit)
+        {
+            gameObject.SetActive(false);
+            Debug.Log("Game Over");
+            ScenesManager.instance.GameEnd();
+        }    
+    }
+
+    public void LevelSet()
+    {
+        HP += PlayerPrefs.GetInt("HP_Level");
+        Speed += PlayerPrefs.GetInt("Speed_Level");
     }
 
     public IEnumerator OnReact(Vector3 react)
     {
         rigid.AddForce(react * 3, ForceMode.Impulse);
         yield return new WaitForSeconds(.5f);
+    }
+
+    public IEnumerator Force()
+    {
+        isNoHit = true;
+        isForce = true;
+        ForceObj.SetActive(true);
+        yield return new WaitForSeconds(5f);
+        ForceObj.SetActive(false);
+        isForce = false;
+        isNoHit = false;
     }
 }

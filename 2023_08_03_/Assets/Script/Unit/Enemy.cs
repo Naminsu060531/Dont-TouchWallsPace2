@@ -15,7 +15,7 @@ public class Enemy : Unit
     public Vector3 startPos;
     public Rigidbody rigid;
 
-    public bool isLook, isAttack;
+    public bool isLook, isAttack, isDead, isForceAttack;
 
     public float attackDelay, attackDelayMax;
 
@@ -31,7 +31,7 @@ public class Enemy : Unit
         switch (rank)
         {
             case Rank.Normal:
-                HP = 2;
+                HP = 4;
                 Speed = 5;
                 score = 10;
                 dropGold = 10;
@@ -43,7 +43,7 @@ public class Enemy : Unit
                 dropGold = 20;
                 break;
             case Rank.Epic:
-                HP = 2;
+                HP = 7;
                 Speed = 6;
                 score = 35;
                 dropGold = 40;
@@ -78,8 +78,14 @@ public class Enemy : Unit
 
     void DeadEvent()
     {
-        if (HP <= 0)
+        if (HP <= 0 && !isDead)
+        {
+            isDead = true;
+            DataManager.instance.Score += (score * 2);
+            int addGold = PlayerPrefs.GetInt("Gold");
+            PlayerPrefs.SetInt("Gold", addGold += dropGold);
             gameObject.SetActive(false);
+        }
     }
 
     void Attack()
@@ -129,12 +135,31 @@ public class Enemy : Unit
                 }
             }
         }
+
+        if (other.tag == "Force")
+        {
+            isForceAttack = true;
+            HP -= 1;
+            Vector3 reactVec = transform.position - other.gameObject.transform.position;
+            StartCoroutine(OnReact(reactVec));
+        }
+
+        if (other.tag == "Walls")
+        {
+            if (isForceAttack)
+                HP -= 1;
+
+            Vector3 reactVec = transform.position - other.gameObject.transform.position;
+            StartCoroutine(OnReact(reactVec));
+        }
     }
 
     public IEnumerator OnReact(Vector3 react)
     {
+        DataManager.instance.Score += score;
         rigid.AddForce(react * 3, ForceMode.Impulse);
         yield return new WaitForSeconds(.5f);
+        isForceAttack = false;
     }
 
     public IEnumerator AttackCo()

@@ -11,6 +11,8 @@ public class BossManager : MonoBehaviour
     public float bossSpawnTime;
     public Image bossHp;
 
+    public GameObject SpawnManagerObj;
+
     public float BossHealth, BossMaxHealth;
 
     private void Start()
@@ -22,6 +24,7 @@ public class BossManager : MonoBehaviour
 
     private void Update()
     {
+        SpawnManagerObj.SetActive(Boss.gameObject.activeSelf);
         BossHealth = BossPrefabs.HP;
         bossHp.transform.GetComponentInChildren<Image>().fillAmount = BossHealth / BossMaxHealth;
     }

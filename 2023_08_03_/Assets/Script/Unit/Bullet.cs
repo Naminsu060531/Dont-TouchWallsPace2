@@ -22,6 +22,7 @@ public class Bullet : Unit
         else if(target == Target.Enemy)
         {
             isEnemy = true;
+            dmg += PlayerPrefs.GetInt("Attack_Level");
         }
     }
 
@@ -37,8 +38,11 @@ public class Bullet : Unit
     {
         transform.position = player.firePos.position;
 
-        gameObject.SetActive(true);
-        Invoke("UnSet", 8f);
+        if(!Player.instance.isForce)
+        {
+            gameObject.SetActive(true);
+            Invoke("UnSet", 8f);
+        }
     }
 
     void UnSet()
