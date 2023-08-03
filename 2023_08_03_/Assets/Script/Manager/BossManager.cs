@@ -17,10 +17,12 @@ public class BossManager : MonoBehaviour
     {
         Boss = Instantiate(BossPrefabs, transform.position, transform.rotation);
         bossHp.gameObject.SetActive(Boss.gameObject.activeSelf);
+        BossMaxHealth = BossPrefabs.HP;
     }
 
     private void Update()
     {
+        BossHealth = BossPrefabs.HP;
         bossHp.transform.GetComponentInChildren<Image>().fillAmount = BossHealth / BossMaxHealth;
     }
 }

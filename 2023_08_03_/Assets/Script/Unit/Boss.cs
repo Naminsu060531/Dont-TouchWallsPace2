@@ -55,7 +55,7 @@ public class Boss : Enemy
         isThink = true;
         yield return null;
 
-        int ranValue = Random.Range(0, 2);
+        int ranValue = Random.Range(0, 4);
 
         switch(ranValue)
         {
@@ -65,6 +65,12 @@ public class Boss : Enemy
             case 1:
                 StartCoroutine(Force());
                 break;
+            case 2:
+                StartCoroutine(Think());
+                break;
+            case 3:
+                StartCoroutine(TripleDash());
+                break;
         }
 
     }
@@ -73,10 +79,38 @@ public class Boss : Enemy
     {
         Debug.Log("Dash");
         isLooks = true;
+        yield return new WaitForSeconds(.5f);
+        rigid.AddForce(transform.forward * Speed, ForceMode.Impulse);
+        yield return new WaitForSeconds(.5f);
+        isLooks = false;
+
+        yield return new WaitForSeconds(.5f);
+        rigid.AddForce(transform.right * Speed, ForceMode.Impulse);
+        yield return new WaitForSeconds(.5f);
+        isLooks = false;
+        yield return new WaitForSeconds(.5f);
+        isLooks = true;
+
+        yield return new WaitForSeconds(.5f);
+        rigid.AddForce(transform.right * Speed, ForceMode.Impulse);
+        yield return new WaitForSeconds(.5f);
+        isLooks = false;
+        yield return new WaitForSeconds(.5f);
+
+        isThink = false;
+        yield return new WaitForSeconds(.5f);
+        StartCoroutine(Think());
+    }
+
+    IEnumerator TripleDash()
+    {
+        Debug.Log("Dash");
+        isLooks = true;
         yield return new WaitForSeconds(1f);
         rigid.AddForce(transform.forward * Speed, ForceMode.Impulse);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
         isLooks = false;
+        yield return new WaitForSeconds(1f);
         isThink = false;
         yield return new WaitForSeconds(1f);
         StartCoroutine(Think());
