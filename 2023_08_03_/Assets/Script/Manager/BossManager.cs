@@ -5,27 +5,49 @@ using UnityEngine.UI;
 
 public class BossManager : MonoBehaviour
 {
+    public static BossManager instance;
+
     public Boss BossPrefabs; 
     public Boss Boss;
 
-    public float bossSpawnTime;
+    public float bossSpawnTime , bossSpawnTimeMax;
     public Image bossHp;
 
     public GameObject SpawnManagerObj;
 
     public float BossHealth, BossMaxHealth;
 
-    private void Start()
+    private void Awake()
     {
-        Boss = Instantiate(BossPrefabs, transform.position, transform.rotation);
-        bossHp.gameObject.SetActive(Boss.gameObject.activeSelf);
-        BossMaxHealth = BossPrefabs.HP;
+        instance = this;
     }
 
     private void Update()
     {
-        SpawnManagerObj.SetActive(Boss.gameObject.activeSelf);
-        BossHealth = BossPrefabs.HP;
-        bossHp.transform.GetComponentInChildren<Image>().fillAmount = BossHealth / BossMaxHealth;
+        CheckBossTime();
+        BossHealthBarSet();
+    }
+
+    public void CheckBossTime()
+    {
+        bossSpawnTime += Time.deltaTime;
+
+        if(bossSpawnTime >= bossSpawnTimeMax)
+        {
+            Boss = Instantiate(BossPrefabs, transform.position, transform.rotation);
+            bossSpawnTime = 0;
+        }
+        
+    }
+
+    public void BossHealthBarSet()
+    {
+        if(Boss.gameObject.activeInHierarchy)
+        {
+            bossSpawnTime = 0;
+            bossHp.gameObject.SetActive(Boss.gameObject.activeSelf);
+            bossHp.transform.GetComponentInChildren<Image>().fillAmount = BossMaxHealth / BossHealth;
+        }
+
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 public class Boss : Enemy
 {
     public bool isThink, isRight, isLooks;
-    public GameObject ForceObj;
+    public GameObject ForceEffect;
 
     private void Awake()
     {
@@ -16,14 +16,23 @@ public class Boss : Enemy
     // Start is called before the first frame update
     void Start()
     {
+        BossManager.instance.BossMaxHealth = HP;
         StartCoroutine(Think());
     }
 
     // Update is called once per frame
     void Update()
     {
-        Move();
+        //Move();
         lookAts();
+
+        if (isDead)
+            BossManager.instance.bossSpawnTimeMax += 30;
+    }
+
+    private void FixedUpdate()
+    {
+        BossManager.instance.BossHealth = HP;
     }
 
     void Move()
@@ -69,40 +78,13 @@ public class Boss : Enemy
                 StartCoroutine(Think());
                 break;
             case 3:
-                StartCoroutine(TripleDash());
+                StartCoroutine(Dash());
                 break;
         }
 
     }
 
     IEnumerator Dash()
-    {
-        Debug.Log("Dash");
-        isLooks = true;
-        yield return new WaitForSeconds(.5f);
-        rigid.AddForce(transform.forward * Speed, ForceMode.Impulse);
-        yield return new WaitForSeconds(.5f);
-        isLooks = false;
-
-        yield return new WaitForSeconds(.5f);
-        rigid.AddForce(transform.right * Speed, ForceMode.Impulse);
-        yield return new WaitForSeconds(.5f);
-        isLooks = false;
-        yield return new WaitForSeconds(.5f);
-        isLooks = true;
-
-        yield return new WaitForSeconds(.5f);
-        rigid.AddForce(transform.right * Speed, ForceMode.Impulse);
-        yield return new WaitForSeconds(.5f);
-        isLooks = false;
-        yield return new WaitForSeconds(.5f);
-
-        isThink = false;
-        yield return new WaitForSeconds(.5f);
-        StartCoroutine(Think());
-    }
-
-    IEnumerator TripleDash()
     {
         Debug.Log("Dash");
         isLooks = true;
@@ -120,10 +102,10 @@ public class Boss : Enemy
     {
         Debug.Log("Force");
 
-        if(!ForceObj.activeInHierarchy)
-            ForceObj.SetActive(true);
-        StartCoroutine(Think());
+        if(!ForceEffect.activeInHierarchy)
+            ForceEffect.SetActive(true);
+        StartCoroutine(Dash());
         yield return new WaitForSeconds(5f);
-        ForceObj.SetActive(false);
+        ForceEffect.SetActive(false);
     }
 }

@@ -66,6 +66,7 @@ public class Bullet : Unit
         {
             if (other.tag == "Enemy")
             {
+                Debug.Log("*");
                 Enemy enemy = other.GetComponent<Enemy>();
                 enemy.HP -= dmg;
                 gameObject.SetActive(false);

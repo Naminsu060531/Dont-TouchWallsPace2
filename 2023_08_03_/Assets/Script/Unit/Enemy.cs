@@ -19,6 +19,8 @@ public class Enemy : Unit
 
     public float attackDelay, attackDelayMax;
 
+    public GameObject forceObj;
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>(); 
@@ -140,6 +142,10 @@ public class Enemy : Unit
         {
             isForceAttack = true;
             HP -= 1;
+
+            GameObject forceEffect = Instantiate(forceObj, transform.position, transform.rotation);
+            Destroy(forceEffect, .3f);
+
             Vector3 reactVec = transform.position - other.gameObject.transform.position;
             StartCoroutine(OnReact(reactVec));
         }
@@ -149,6 +155,9 @@ public class Enemy : Unit
             if (isForceAttack)
                 HP -= 1;
 
+            GameObject forceEffect = Instantiate(forceObj, transform.position, transform.rotation);
+            Destroy(forceEffect, .3f);
+
             Vector3 reactVec = transform.position - other.gameObject.transform.position;
             StartCoroutine(OnReact(reactVec));
         }
@@ -157,7 +166,7 @@ public class Enemy : Unit
     public IEnumerator OnReact(Vector3 react)
     {
         DataManager.instance.Score += score;
-        rigid.AddForce(react * 3, ForceMode.Impulse);
+        rigid.AddForce(react * 2, ForceMode.Impulse);
         yield return new WaitForSeconds(.5f);
         isForceAttack = false;
     }
